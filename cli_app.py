@@ -7,7 +7,7 @@ if __name__ == "__main__":
         vectorstore = pickle.load(f)
     qa_chain = get_chain(vectorstore)
     chat_history = []
-    print("Chat with your docs!")
+    print("Chat with VEX KB!")
     while True:
         print("Human:")
         question = input()

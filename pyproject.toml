@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "chat-your-data"
+version = "0.1.0"
+description = "chat w vex kb"
+authors = ["Josh Studl <josh_studl@innovationfirst.com>"]
+readme = "README.md"
+packages = [{include = "chat_your_data"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
