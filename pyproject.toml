@@ -8,6 +8,7 @@ packages = [{include = "chat_your_data"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+openai = "^0.27.8"
 
 
 [build-system]

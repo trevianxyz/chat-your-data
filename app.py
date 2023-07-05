@@ -1,6 +1,4 @@
 import os
-from os import getenv
-from dotenv import load_dotenv
 from typing import Optional, Tuple
 
 import gradio as gr
@@ -10,16 +8,17 @@ from threading import Lock
 
 with open("vectorstore.pkl", "rb") as f:
     vectorstore = pickle.load(f)
- # take environment variables from .env.
+
 
 def set_openai_api_key(api_key: str):
     """Set the api key and return chain.
     If no api_key, then None is returned.
     """
-    os.environ["OPENAI_API_KEY"] = api_key
-    chain = get_chain(vectorstore)
-    os.environ["OPENAI_API_KEY"] = ""
-    return chain
+    if api_key:
+        os.environ["OPENAI_API_KEY"] = api_key
+        chain = get_chain(vectorstore)
+        os.environ["OPENAI_API_KEY"] = ""
+        return chain
 
 class ChatWrapper:
 
@@ -54,12 +53,10 @@ block = gr.Blocks(css=".gradio-container {background-color: lightgray}")
 
 with block:
     with gr.Row():
-        gr.Markdown("<h3><center>Chat-Your-Data vexcode </center></h3>")
+        gr.Markdown("<h3><center>Chat-Your-Data (State-of-the-Union)</center></h3>")
 
-        openai_api_key_textbox = load_dotenv(os.environ["OPENAI_API_KEY"])
-        
-        # gr.Textbox(
-        #     placeholder="Paste your OpenAI API key here",
+        # openai_api_key_textbox = gr.Textbox(
+        #     placeholder="Paste your OpenAI API key (sk-...)",
         #     show_label=False,
         #     lines=1,
         #     type="password",
@@ -70,16 +67,16 @@ with block:
     with gr.Row():
         message = gr.Textbox(
             label="What's your question?",
-            placeholder="what is difference between IQ 1st and 2nd generation?",
+            placeholder="Ask questions about the most recent state of the union",
             lines=1,
         )
-        submit = gr.Button(value="Send", variant="secondary").style(full_width=False)
+        submit = gr.Button(value="Send", variant="secondary").style(scale=1)
 
     gr.Examples(
         examples=[
-            "what are benefits of PD+?",
-            "How can VexVR help my students if we already use 123?",
-            "How do I pair a controller to the EXP Brain?",
+            "What did the president say about Kentaji Brown Jackson",
+            "Did he mention Stephen Breyer?",
+            "What was his stance on Ukraine",
         ],
         inputs=message,
     )
@@ -93,13 +90,17 @@ with block:
     state = gr.State()
     agent_state = gr.State()
 
+    openai_api_key_textbox = os.getenv("OPENAI_API_KEY")
+
+    chain = set_openai_api_key(openai_api_key_textbox)
+
     submit.click(chat, inputs=[openai_api_key_textbox, message, state, agent_state], outputs=[chatbot, state])
     message.submit(chat, inputs=[openai_api_key_textbox, message, state, agent_state], outputs=[chatbot, state])
 
-    # openai_api_key_textbox.change(
-    #     set_openai_api_key,
-    #     inputs=[openai_api_key_textbox],
-    #     outputs=[agent_state],
-    # )
+    openai_api_key_textbox.change(
+        set_openai_api_key,
+        inputs=[openai_api_key_textbox],
+        outputs=[agent_state],
+    )
 
 block.launch(debug=True)
